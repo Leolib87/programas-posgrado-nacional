@@ -1,0 +1,30 @@
+---
+import Layout from '../layouts/Layout.astro';
+import Dashboard from '../components/Dashboard.tsx';
+import programas from '../data/doctorados-educacion.json';
+---
+
+<Layout
+  title="Doctorados en Educación en Chile — Programas de Posgrado Nacional"
+  description="Dashboard comparativo de todos los Doctorados en Educación de Chile: arancel, modalidad, duración y acreditación."
+>
+  <header class="border-b border-slate-200 bg-white">
+    <div class="max-w-7xl mx-auto px-4 py-8">
+      <p class="text-xs font-semibold text-brand-600 uppercase tracking-wide mb-2">Programas de Posgrado Nacional</p>
+      <h1 class="text-2xl sm:text-3xl font-bold text-ink-900">Doctorados en Educación en Chile</h1>
+      <p class="text-ink-500 mt-2 max-w-2xl">
+        Compara arancel, duración, modalidad y tipo de institución de los programas de Doctorado en Educación
+        vigentes en Chile. Filtra por presupuesto y modalidad, y accede al sitio oficial de cada programa.
+      </p>
+    </div>
+  </header>
+
+  <main class="max-w-7xl mx-auto px-4 py-8">
+    <Dashboard programas={programas} client:load />
+  </main>
+
+  <footer class="max-w-7xl mx-auto px-4 py-8 text-xs text-ink-500 border-t border-slate-200 mt-8">
+    Datos recopilados desde las webs oficiales de cada universidad y fuentes públicas (CNA, ANID). Verifica el
+    arancel y las vacantes directamente en el sitio del programa antes de postular.
+  </footer>
+</Layout>
