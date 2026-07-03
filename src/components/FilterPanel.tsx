@@ -45,7 +45,7 @@ export default function FilterPanel({
   };
 
   return (
-    <aside className="bg-[var(--surface)] rounded-xl border border-[var(--border-color)] p-6 flex flex-col gap-7 h-fit sticky top-4">
+    <aside className="bg-[var(--surface)] rounded-xl border border-[var(--border-color)] p-6 flex flex-col gap-7 h-fit lg:sticky lg:top-4">
       <div className="flex items-center justify-between">
         <h2 className="text-base font-semibold text-[var(--text-primary)] uppercase tracking-wide">Filtros</h2>
         <button

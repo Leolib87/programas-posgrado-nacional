@@ -50,8 +50,8 @@ export default function DonutChart({ title, counts, colorMapKey }: Props) {
   return (
     <div>
       <h3 className="text-lg font-semibold text-[var(--text-primary)] mb-3">{title}</h3>
-      <div className="flex items-center gap-6">
-        <svg width={size} height={size} viewBox={`0 0 ${size} ${size}`} role="img" aria-label={title}>
+      <div className="flex flex-col sm:flex-row items-center gap-4 sm:gap-6">
+        <svg width={size} height={size} viewBox={`0 0 ${size} ${size}`} role="img" aria-label={title} className="shrink-0">
           <g transform={`translate(${radius},${radius})`}>
             {pie.map((slice) => {
               const [key, value] = slice.data;

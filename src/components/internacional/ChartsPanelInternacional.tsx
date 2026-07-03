@@ -43,7 +43,8 @@ function CostBarChart({ data }: { data: ProgramaInternacional[] }) {
   const ticks = x.ticks(4);
 
   return (
-    <svg width="100%" viewBox={`0 0 ${width} ${height}`} role="img" aria-label="Costo total aproximado por universidad">
+    <div className="overflow-x-auto">
+    <svg width={width} height={height} viewBox={`0 0 ${width} ${height}`} role="img" aria-label="Costo total aproximado por universidad" className="max-w-none">
       <g transform={`translate(${margin.left},${margin.top})`}>
         {ticks.map((t) => (
           <line key={t} x1={x(t)} x2={x(t)} y1={-4} y2={rows.length * rowHeight} stroke={ink.grid} strokeWidth={1} />
@@ -67,6 +68,7 @@ function CostBarChart({ data }: { data: ProgramaInternacional[] }) {
         })}
       </g>
     </svg>
+    </div>
   );
 }
 
@@ -113,7 +115,8 @@ function ScatterCosto({ data }: { data: ProgramaInternacional[] }) {
   const yTicks = y.ticks(5);
 
   return (
-    <svg width="100%" viewBox={`0 0 ${width} ${height}`} role="img" aria-label="Duración vs costo total aproximado">
+    <div className="overflow-x-auto">
+    <svg width={width} height={height} viewBox={`0 0 ${width} ${height}`} role="img" aria-label="Duración vs costo total aproximado" className="max-w-none">
       <g transform={`translate(${margin.left},${margin.top})`}>
         {yTicks.map((t) => (
           <g key={t}>
@@ -153,6 +156,7 @@ function ScatterCosto({ data }: { data: ProgramaInternacional[] }) {
         })}
       </g>
     </svg>
+    </div>
   );
 }
 
@@ -225,8 +229,8 @@ function DonutChartGeneric({ title, counts, colorMap }: { title: string; counts:
   return (
     <div>
       <h3 className="text-lg font-semibold text-[var(--text-primary)] mb-3">{title}</h3>
-      <div className="flex items-center gap-6">
-        <svg width={size} height={size} viewBox={`0 0 ${size} ${size}`} role="img" aria-label={title}>
+      <div className="flex flex-col sm:flex-row items-center gap-4 sm:gap-6">
+        <svg width={size} height={size} viewBox={`0 0 ${size} ${size}`} role="img" aria-label={title} className="shrink-0">
           <g transform={`translate(${radius},${radius})`}>
             {pie.map((slice) => {
               const [key, value] = slice.data;

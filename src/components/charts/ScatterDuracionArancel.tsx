@@ -44,7 +44,8 @@ export default function ScatterDuracionArancel({ data }: { data: ProgramaDoctora
   const yTicks = y.ticks(5);
 
   return (
-    <svg width="100%" viewBox={`0 0 ${width} ${height}`} role="img" aria-label="Duración vs arancel anual">
+    <div className="overflow-x-auto">
+    <svg width={width} height={height} viewBox={`0 0 ${width} ${height}`} role="img" aria-label="Duración vs arancel anual" className="max-w-none">
       <g transform={`translate(${margin.left},${margin.top})`}>
         {yTicks.map((t) => (
           <g key={t}>
@@ -85,5 +86,6 @@ export default function ScatterDuracionArancel({ data }: { data: ProgramaDoctora
         })}
       </g>
     </svg>
+    </div>
   );
 }

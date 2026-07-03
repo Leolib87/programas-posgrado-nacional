@@ -51,7 +51,8 @@ export default function BarChartArancel({ data }: { data: ProgramaDoctorado[] })
   const ticks = x.ticks(4);
 
   return (
-    <svg width="100%" viewBox={`0 0 ${width} ${height}`} role="img" aria-label="Arancel anual por universidad">
+    <div className="overflow-x-auto">
+    <svg width={width} height={height} viewBox={`0 0 ${width} ${height}`} role="img" aria-label="Arancel anual por universidad" className="max-w-none">
       <g transform={`translate(${margin.left},${margin.top})`}>
         {ticks.map((t) => (
           <line key={t} x1={x(t)} x2={x(t)} y1={-4} y2={rows.length * rowHeight} stroke={ink.grid} strokeWidth={1} />
@@ -96,5 +97,6 @@ export default function BarChartArancel({ data }: { data: ProgramaDoctorado[] })
         })}
       </g>
     </svg>
+    </div>
   );
 }
