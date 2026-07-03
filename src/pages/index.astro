@@ -19,12 +19,12 @@ import programas from '../data/doctorados-educacion.json';
           vigentes en Chile. Filtra por presupuesto y modalidad, y accede al sitio oficial de cada programa.
         </p>
       </div>
-      <ThemeToggle client:load />
+      <ThemeToggle client:only="react" />
     </div>
   </header>
 
   <main class="max-w-[1800px] mx-auto px-6 sm:px-10 py-10">
-    <Dashboard programas={programas} client:load />
+    <Dashboard programas={programas} client:only="react" />
   </main>
 
   <footer class="max-w-[1800px] mx-auto px-6 sm:px-10 py-10 text-sm text-[var(--text-muted)] border-t border-[var(--border-color)] mt-8">
