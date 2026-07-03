@@ -37,7 +37,7 @@ function CostBarChart({ data }: { data: ProgramaInternacional[] }) {
   if (compact) {
     // Móvil: nombre de la universidad arriba, barra abajo — usa todo el ancho disponible.
     const rowHeight = 56;
-    const margin = { top: 4, right: 8, bottom: 4, left: 8 };
+    const margin = { top: 4, right: 64, bottom: 4, left: 8 };
     const barHeight = 16;
     const innerWidth = Math.max(width - margin.left - margin.right, 40);
     const height = rows.length * rowHeight + margin.top + margin.bottom;
