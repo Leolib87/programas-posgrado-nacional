@@ -1,16 +1,20 @@
 import { useMemo, useState } from 'react';
 import * as d3 from 'd3';
-import { INK } from './colors';
+import { chartPalette } from './colors';
+import { useIsDark } from '../../lib/useTheme';
 
 interface Props {
   title: string;
   counts: Record<string, number>;
-  colorMap: Record<string, string>;
+  colorMapKey: 'modalidadColor' | 'tipoColor';
 }
 
-export default function DonutChart({ title, counts, colorMap }: Props) {
+export default function DonutChart({ title, counts, colorMapKey }: Props) {
+  const isDark = useIsDark();
+  const { ink, ...palette } = chartPalette(isDark);
+  const colorMap = palette[colorMapKey];
   const [hovered, setHovered] = useState<string | null>(null);
-  const size = 200;
+  const size = 220;
   const radius = size / 2;
   const entries = useMemo(
     () => Object.entries(counts).filter(([, v]) => v > 0),
@@ -37,16 +41,16 @@ export default function DonutChart({ title, counts, colorMap }: Props) {
   if (total === 0) {
     return (
       <div>
-        <h3 className="text-sm font-semibold text-ink-900 mb-2">{title}</h3>
-        <p className="text-sm text-ink-500">Sin datos para el filtro actual.</p>
+        <h3 className="text-lg font-semibold text-[var(--text-primary)] mb-2">{title}</h3>
+        <p className="text-base text-[var(--text-muted)]">Sin datos para el filtro actual.</p>
       </div>
     );
   }
 
   return (
     <div>
-      <h3 className="text-sm font-semibold text-ink-900 mb-2">{title}</h3>
-      <div className="flex items-center gap-4">
+      <h3 className="text-lg font-semibold text-[var(--text-primary)] mb-3">{title}</h3>
+      <div className="flex items-center gap-6">
         <svg width={size} height={size} viewBox={`0 0 ${size} ${size}`} role="img" aria-label={title}>
           <g transform={`translate(${radius},${radius})`}>
             {pie.map((slice) => {
@@ -56,7 +60,7 @@ export default function DonutChart({ title, counts, colorMap }: Props) {
                 <path
                   key={key}
                   d={arc(slice) ?? undefined}
-                  fill={colorMap[key] ?? INK.muted}
+                  fill={colorMap[key] ?? ink.muted}
                   opacity={hovered && !isHovered ? 0.4 : 1}
                   onMouseEnter={() => setHovered(key)}
                   onMouseLeave={() => setHovered(null)}
@@ -65,15 +69,15 @@ export default function DonutChart({ title, counts, colorMap }: Props) {
                 </path>
               );
             })}
-            <text textAnchor="middle" dominantBaseline="middle" y={-4} fontSize={20} fontWeight={700} fill={INK.primary}>
+            <text textAnchor="middle" dominantBaseline="middle" y={-6} fontSize={24} fontWeight={700} fill={ink.primary}>
               {total}
             </text>
-            <text textAnchor="middle" dominantBaseline="middle" y={16} fontSize={11} fill={INK.muted}>
+            <text textAnchor="middle" dominantBaseline="middle" y={16} fontSize={13} fill={ink.muted}>
               programas
             </text>
           </g>
         </svg>
-        <ul className="flex flex-col gap-1.5 text-sm">
+        <ul className="flex flex-col gap-2 text-base">
           {entries.map(([key, value]) => (
             <li
               key={key}
@@ -82,9 +86,9 @@ export default function DonutChart({ title, counts, colorMap }: Props) {
               onMouseLeave={() => setHovered(null)}
               style={{ opacity: hovered && hovered !== key ? 0.4 : 1 }}
             >
-              <span className="w-2.5 h-2.5 rounded-full" style={{ backgroundColor: colorMap[key] ?? INK.muted }} />
-              <span className="text-ink-700">{key}</span>
-              <span className="text-ink-500 tabular-nums">{value}</span>
+              <span className="w-3 h-3 rounded-full" style={{ backgroundColor: colorMap[key] ?? ink.muted }} />
+              <span className="text-[var(--text-secondary)]">{key}</span>
+              <span className="text-[var(--text-muted)] tabular-nums">{value}</span>
             </li>
           ))}
         </ul>

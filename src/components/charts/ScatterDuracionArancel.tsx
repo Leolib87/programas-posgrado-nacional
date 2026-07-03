@@ -1,15 +1,18 @@
 import { useMemo, useState } from 'react';
 import * as d3 from 'd3';
 import type { ProgramaDoctorado } from '../../types';
-import { INK, MODALIDAD_COLOR } from './colors';
+import { chartPalette } from './colors';
+import { useIsDark } from '../../lib/useTheme';
 
 const clp = (n: number) => `$${(n / 1_000_000).toFixed(1)}M`;
 
 export default function ScatterDuracionArancel({ data }: { data: ProgramaDoctorado[] }) {
+  const isDark = useIsDark();
+  const { ink, modalidadColor } = chartPalette(isDark);
   const [hovered, setHovered] = useState<string | null>(null);
-  const width = 640;
-  const height = 320;
-  const margin = { top: 12, right: 16, bottom: 36, left: 56 };
+  const width = 720;
+  const height = 360;
+  const margin = { top: 12, right: 16, bottom: 44, left: 68 };
   const innerW = width - margin.left - margin.right;
   const innerH = height - margin.top - margin.bottom;
 
@@ -34,7 +37,7 @@ export default function ScatterDuracionArancel({ data }: { data: ProgramaDoctora
   );
 
   if (rows.length === 0) {
-    return <p className="text-sm text-ink-500">No hay programas con datos suficientes para el filtro actual.</p>;
+    return <p className="text-base text-[var(--text-muted)]">No hay programas con datos suficientes para el filtro actual.</p>;
   }
 
   const xTicks = x.ticks(6);
@@ -45,19 +48,19 @@ export default function ScatterDuracionArancel({ data }: { data: ProgramaDoctora
       <g transform={`translate(${margin.left},${margin.top})`}>
         {yTicks.map((t) => (
           <g key={t}>
-            <line x1={0} x2={innerW} y1={y(t)} y2={y(t)} stroke={INK.grid} strokeWidth={1} />
-            <text x={-8} y={y(t)} textAnchor="end" dominantBaseline="middle" fontSize={10} fill={INK.muted}>
+            <line x1={0} x2={innerW} y1={y(t)} y2={y(t)} stroke={ink.grid} strokeWidth={1} />
+            <text x={-10} y={y(t)} textAnchor="end" dominantBaseline="middle" fontSize={12} fill={ink.muted}>
               {clp(t)}
             </text>
           </g>
         ))}
         {xTicks.map((t) => (
-          <text key={t} x={x(t)} y={innerH + 20} textAnchor="middle" fontSize={10} fill={INK.muted}>
+          <text key={t} x={x(t)} y={innerH + 24} textAnchor="middle" fontSize={12} fill={ink.muted}>
             {t}
           </text>
         ))}
-        <line x1={0} x2={innerW} y1={innerH} y2={innerH} stroke={INK.baseline} strokeWidth={1} />
-        <text x={innerW / 2} y={innerH + 34} textAnchor="middle" fontSize={11} fill={INK.secondary}>
+        <line x1={0} x2={innerW} y1={innerH} y2={innerH} stroke={ink.baseline} strokeWidth={1} />
+        <text x={innerW / 2} y={innerH + 40} textAnchor="middle" fontSize={13} fill={ink.secondary}>
           Duración (semestres)
         </text>
 
@@ -68,10 +71,10 @@ export default function ScatterDuracionArancel({ data }: { data: ProgramaDoctora
               key={d.id}
               cx={x(d.duracionSemestres)}
               cy={y(d.arancelAnual ?? 0)}
-              r={isHovered ? 8 : 6}
-              fill={MODALIDAD_COLOR[d.modalidad] ?? INK.muted}
+              r={isHovered ? 9 : 7}
+              fill={modalidadColor[d.modalidad] ?? ink.muted}
               fillOpacity={hovered && !isHovered ? 0.35 : 0.85}
-              stroke={INK.surface}
+              stroke={ink.surface}
               strokeWidth={2}
               onMouseEnter={() => setHovered(d.id)}
               onMouseLeave={() => setHovered(null)}

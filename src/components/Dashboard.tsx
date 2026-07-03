@@ -51,7 +51,7 @@ export default function Dashboard({ programas }: { programas: ProgramaDoctorado[
   };
 
   return (
-    <div className="grid grid-cols-1 lg:grid-cols-[260px_1fr] gap-6 items-start">
+    <div className="grid grid-cols-1 lg:grid-cols-[300px_1fr] gap-8 items-start">
       <FilterPanel
         data={programas}
         arancelBounds={bounds}
@@ -69,19 +69,19 @@ export default function Dashboard({ programas }: { programas: ProgramaDoctorado[
         onReset={resetFilters}
       />
 
-      <div className="flex flex-col gap-6">
-        <p className="text-sm text-ink-500">
-          <span className="font-semibold text-ink-900">{filtered.length}</span> de {programas.length} programas
+      <div className="flex flex-col gap-8">
+        <p className="text-base text-[var(--text-muted)]">
+          <span className="font-semibold text-[var(--text-primary)]">{filtered.length}</span> de {programas.length} programas
         </p>
 
         <ChartsPanel data={filtered} />
 
-        <div className="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-3 gap-4">
+        <div className="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-3 gap-5">
           {filtered.map((p) => (
             <ProgramCard key={p.id} p={p} />
           ))}
           {filtered.length === 0 && (
-            <p className="text-sm text-ink-500 col-span-full">Ningún programa coincide con los filtros seleccionados.</p>
+            <p className="text-base text-[var(--text-muted)] col-span-full">Ningún programa coincide con los filtros seleccionados.</p>
           )}
         </div>
       </div>

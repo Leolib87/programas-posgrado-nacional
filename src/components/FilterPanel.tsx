@@ -45,23 +45,23 @@ export default function FilterPanel({
   };
 
   return (
-    <aside className="bg-white rounded-xl border border-slate-200 p-5 flex flex-col gap-6 h-fit sticky top-4">
+    <aside className="bg-[var(--surface)] rounded-xl border border-[var(--border-color)] p-6 flex flex-col gap-7 h-fit sticky top-4">
       <div className="flex items-center justify-between">
-        <h2 className="text-sm font-semibold text-ink-900 uppercase tracking-wide">Filtros</h2>
+        <h2 className="text-base font-semibold text-[var(--text-primary)] uppercase tracking-wide">Filtros</h2>
         <button
           type="button"
           onClick={onReset}
-          className="text-xs text-brand-600 hover:text-brand-700 font-medium"
+          className="text-sm text-brand-600 hover:text-brand-700 font-medium"
         >
           Limpiar
         </button>
       </div>
 
       <div className="flex flex-col gap-3">
-        <label className="text-xs font-semibold text-ink-700 uppercase tracking-wide">
+        <label className="text-sm font-semibold text-[var(--text-secondary)] uppercase tracking-wide">
           Arancel anual (CLP)
         </label>
-        <div className="text-sm text-ink-500 flex justify-between tabular-nums">
+        <div className="text-base text-[var(--text-muted)] flex justify-between tabular-nums">
           <span>{clp(rangeMin)}</span>
           <span>{clp(rangeMax)}</span>
         </div>
@@ -89,52 +89,52 @@ export default function FilterPanel({
         </div>
       </div>
 
-      <fieldset className="flex flex-col gap-2">
-        <legend className="text-xs font-semibold text-ink-700 uppercase tracking-wide mb-1">
+      <fieldset className="flex flex-col gap-2.5">
+        <legend className="text-sm font-semibold text-[var(--text-secondary)] uppercase tracking-wide mb-1">
           Modalidad
         </legend>
         {modalidades.map((m) => (
-          <label key={m} className="flex items-center gap-2 text-sm text-ink-700 cursor-pointer">
+          <label key={m} className="flex items-center gap-2.5 text-base text-[var(--text-secondary)] cursor-pointer">
             <input
               type="checkbox"
               checked={activeModalidades.has(m)}
               onChange={() => onToggleModalidad(m)}
-              className="accent-brand-500 w-4 h-4"
+              className="accent-brand-500 w-5 h-5"
             />
             {m}
           </label>
         ))}
       </fieldset>
 
-      <fieldset className="flex flex-col gap-2">
-        <legend className="text-xs font-semibold text-ink-700 uppercase tracking-wide mb-1">
+      <fieldset className="flex flex-col gap-2.5">
+        <legend className="text-sm font-semibold text-[var(--text-secondary)] uppercase tracking-wide mb-1">
           Tipo de institución
         </legend>
         {tipos.map((t) => (
-          <label key={t} className="flex items-center gap-2 text-sm text-ink-700 cursor-pointer">
+          <label key={t} className="flex items-center gap-2.5 text-base text-[var(--text-secondary)] cursor-pointer">
             <input
               type="checkbox"
               checked={activeTipos.has(t)}
               onChange={() => onToggleTipo(t)}
-              className="accent-brand-500 w-4 h-4"
+              className="accent-brand-500 w-5 h-5"
             />
             {t}
           </label>
         ))}
       </fieldset>
 
-      <fieldset className="flex flex-col gap-2">
-        <legend className="text-xs font-semibold text-ink-700 uppercase tracking-wide mb-1">
+      <fieldset className="flex flex-col gap-2.5">
+        <legend className="text-sm font-semibold text-[var(--text-secondary)] uppercase tracking-wide mb-1">
           Región
         </legend>
-        <div className="flex flex-col gap-2 max-h-56 overflow-y-auto pr-1">
+        <div className="flex flex-col gap-2.5 max-h-64 overflow-y-auto pr-1">
           {regiones.map((r) => (
-            <label key={r} className="flex items-center gap-2 text-sm text-ink-700 cursor-pointer">
+            <label key={r} className="flex items-center gap-2.5 text-base text-[var(--text-secondary)] cursor-pointer">
               <input
                 type="checkbox"
                 checked={activeRegiones.has(r)}
                 onChange={() => onToggleRegion(r)}
-                className="accent-brand-500 w-4 h-4"
+                className="accent-brand-500 w-5 h-5"
               />
               {r}
             </label>
