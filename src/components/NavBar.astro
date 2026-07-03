@@ -1,30 +1,31 @@
 ---
+const trim = (s: string) => s.replace(/^\/+|\/+$/g, '');
+const baseTrimmed = trim(import.meta.env.BASE_URL);
+const pathTrimmed = trim(Astro.url.pathname);
+const relative = pathTrimmed.startsWith(baseTrimmed) ? trim(pathTrimmed.slice(baseTrimmed.length)) : pathTrimmed;
+
 const base = import.meta.env.BASE_URL.endsWith('/') ? import.meta.env.BASE_URL : import.meta.env.BASE_URL + '/';
-const path = Astro.url.pathname;
 
 const links = [
-  { href: base, label: 'Chile', match: (p: string) => p === base },
-  { href: `${base}internacional/`, label: 'Internacional', match: (p: string) => p.startsWith(`${base}internacional`) },
+  { href: base, label: 'Chile', active: relative === '' },
+  { href: `${base}internacional/`, label: 'Internacional', active: relative.startsWith('internacional') },
 ];
 ---
 
 <nav class="border-b border-[var(--border-color)] bg-[var(--surface)]">
   <div class="max-w-[1800px] mx-auto px-6 sm:px-10 flex items-center gap-1">
-    {links.map((link) => {
-      const active = link.match(path);
-      return (
-        <a
-          href={link.href}
-          class:list={[
-            'px-4 py-3.5 text-base font-medium border-b-2 transition',
-            active
-              ? 'border-brand-500 text-brand-600'
-              : 'border-transparent text-[var(--text-muted)] hover:text-[var(--text-primary)]',
-          ]}
-        >
-          {link.label}
-        </a>
-      );
-    })}
+    {links.map((link) => (
+      <a
+        href={link.href}
+        class:list={[
+          'px-4 py-3.5 text-base font-medium border-b-2 transition',
+          link.active
+            ? 'border-brand-500 text-brand-600'
+            : 'border-transparent text-[var(--text-muted)] hover:text-[var(--text-primary)]',
+        ]}
+      >
+        {link.label}
+      </a>
+    ))}
   </div>
 </nav>
