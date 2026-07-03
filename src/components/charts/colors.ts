@@ -34,11 +34,11 @@ export const INK_LIGHT = {
 };
 
 export const INK_DARK = {
-  primary: '#f5f5f4',
-  secondary: '#c3c2b7',
-  muted: '#8b8b86',
-  grid: '#2c2c2a',
-  baseline: '#3f3f3d',
+  primary: '#ffffff',
+  secondary: '#dcdbd2',
+  muted: '#a9a89f',
+  grid: '#34332f',
+  baseline: '#4c4b46',
   surface: '#17181c',
 };
 

@@ -4,6 +4,7 @@ import type { ProgramaInternacional } from '../../types-internacional';
 import { chartPalette, CATEGORICAL_LIGHT, CATEGORICAL_DARK } from '../charts/colors';
 import { useIsDark } from '../../lib/useTheme';
 import { toUsdApprox } from '../../lib/usdApprox';
+import { useElementWidth } from '../../lib/useElementWidth';
 
 function usd(n: number) {
   return `$${(n / 1000).toFixed(1)}k`;
@@ -13,9 +14,15 @@ function CostBarChart({ data }: { data: ProgramaInternacional[] }) {
   const isDark = useIsDark();
   const { ink, sequentialBlue } = chartPalette(isDark);
   const [hovered, setHovered] = useState<string | null>(null);
-  const width = 720;
-  const rowHeight = 34;
-  const margin = { top: 8, right: 64, bottom: 8, left: 280 };
+  const { ref, width } = useElementWidth<HTMLDivElement>(680);
+  const compact = width < 480;
+  const rowHeight = compact ? 30 : 34;
+  const margin = compact
+    ? { top: 8, right: 44, bottom: 8, left: 128 }
+    : { top: 8, right: 64, bottom: 8, left: 280 };
+  const labelMax = compact ? 16 : 38;
+  const labelFontSize = compact ? 11 : 14;
+  const valueFontSize = compact ? 10 : 13;
 
   const rows = useMemo(() => {
     return data
@@ -24,7 +31,7 @@ function CostBarChart({ data }: { data: ProgramaInternacional[] }) {
       .sort((a, b) => (b.costUsd ?? 0) - (a.costUsd ?? 0));
   }, [data]);
 
-  const innerWidth = width - margin.left - margin.right;
+  const innerWidth = Math.max(width - margin.left - margin.right, 40);
   const height = rows.length * rowHeight + margin.top + margin.bottom;
 
   const x = useMemo(
@@ -40,34 +47,34 @@ function CostBarChart({ data }: { data: ProgramaInternacional[] }) {
     return <p className="text-base text-[var(--text-muted)]">No hay programas con costo informado en el filtro actual.</p>;
   }
 
-  const ticks = x.ticks(4);
+  const ticks = x.ticks(compact ? 3 : 4);
 
   return (
-    <div className="overflow-x-auto">
-    <svg width={width} height={height} viewBox={`0 0 ${width} ${height}`} role="img" aria-label="Costo total aproximado por universidad" className="max-w-none">
-      <g transform={`translate(${margin.left},${margin.top})`}>
-        {ticks.map((t) => (
-          <line key={t} x1={x(t)} x2={x(t)} y1={-4} y2={rows.length * rowHeight} stroke={ink.grid} strokeWidth={1} />
-        ))}
-        {rows.map((d, i) => {
-          const w = x(d.costUsd ?? 0);
-          const isHovered = hovered === d.id;
-          return (
-            <g key={d.id} transform={`translate(0,${i * rowHeight})`} onMouseEnter={() => setHovered(d.id)} onMouseLeave={() => setHovered(null)}>
-              <text x={-10} y={rowHeight / 2} textAnchor="end" dominantBaseline="middle" fontSize={14} fill={isHovered ? ink.primary : ink.secondary} fontWeight={isHovered ? 600 : 400}>
-                {d.universidad.length > 38 ? d.universidad.slice(0, 36) + '…' : d.universidad}
-              </text>
-              <rect x={0} y={(rowHeight - 18) / 2} width={Math.max(w, 2)} height={18} rx={4} fill={colorScale(d.costUsd ?? 0)} opacity={isHovered ? 1 : 0.85}>
-                <title>{`${d.universidad}: ${usd(d.costUsd ?? 0)} USD aprox.`}</title>
-              </rect>
-              <text x={w + 8} y={rowHeight / 2} dominantBaseline="middle" fontSize={13} fill={ink.secondary} className="tabular-nums">
-                {usd(d.costUsd ?? 0)}
-              </text>
-            </g>
-          );
-        })}
-      </g>
-    </svg>
+    <div ref={ref}>
+      <svg width={width} height={height} viewBox={`0 0 ${width} ${height}`} role="img" aria-label="Costo total aproximado por universidad">
+        <g transform={`translate(${margin.left},${margin.top})`}>
+          {ticks.map((t) => (
+            <line key={t} x1={x(t)} x2={x(t)} y1={-4} y2={rows.length * rowHeight} stroke={ink.grid} strokeWidth={1} />
+          ))}
+          {rows.map((d, i) => {
+            const w = x(d.costUsd ?? 0);
+            const isHovered = hovered === d.id;
+            return (
+              <g key={d.id} transform={`translate(0,${i * rowHeight})`} onMouseEnter={() => setHovered(d.id)} onMouseLeave={() => setHovered(null)}>
+                <text x={-10} y={rowHeight / 2} textAnchor="end" dominantBaseline="middle" fontSize={labelFontSize} fill={isHovered ? ink.primary : ink.secondary} fontWeight={isHovered ? 600 : 400}>
+                  {d.universidad.length > labelMax ? d.universidad.slice(0, labelMax - 2) + '…' : d.universidad}
+                </text>
+                <rect x={0} y={(rowHeight - 18) / 2} width={Math.max(w, 2)} height={18} rx={4} fill={colorScale(d.costUsd ?? 0)} opacity={isHovered ? 1 : 0.85}>
+                  <title>{`${d.universidad}: ${usd(d.costUsd ?? 0)} USD aprox.`}</title>
+                </rect>
+                <text x={w + 8} y={rowHeight / 2} dominantBaseline="middle" fontSize={valueFontSize} fill={ink.secondary} className="tabular-nums">
+                  {usd(d.costUsd ?? 0)}
+                </text>
+              </g>
+            );
+          })}
+        </g>
+      </svg>
     </div>
   );
 }
@@ -77,10 +84,12 @@ function ScatterCosto({ data }: { data: ProgramaInternacional[] }) {
   const { ink } = chartPalette(isDark);
   const categorical = isDark ? CATEGORICAL_DARK : CATEGORICAL_LIGHT;
   const [hovered, setHovered] = useState<string | null>(null);
-  const width = 720;
-  const height = 360;
-  const margin = { top: 12, right: 16, bottom: 44, left: 68 };
-  const innerW = width - margin.left - margin.right;
+  const { ref, width } = useElementWidth<HTMLDivElement>(680);
+  const compact = width < 480;
+  const height = compact ? 300 : 360;
+  const margin = compact ? { top: 12, right: 12, bottom: 40, left: 52 } : { top: 12, right: 16, bottom: 44, left: 68 };
+  const tickFontSize = compact ? 10 : 12;
+  const innerW = Math.max(width - margin.left - margin.right, 40);
   const innerH = height - margin.top - margin.bottom;
 
   const paisColor = useMemo(() => {
@@ -111,51 +120,51 @@ function ScatterCosto({ data }: { data: ProgramaInternacional[] }) {
     return <p className="text-base text-[var(--text-muted)]">No hay programas con datos suficientes para el filtro actual.</p>;
   }
 
-  const xTicks = x.ticks(5);
-  const yTicks = y.ticks(5);
+  const xTicks = x.ticks(compact ? 4 : 5);
+  const yTicks = y.ticks(compact ? 4 : 5);
 
   return (
-    <div className="overflow-x-auto">
-    <svg width={width} height={height} viewBox={`0 0 ${width} ${height}`} role="img" aria-label="Duración vs costo total aproximado" className="max-w-none">
-      <g transform={`translate(${margin.left},${margin.top})`}>
-        {yTicks.map((t) => (
-          <g key={t}>
-            <line x1={0} x2={innerW} y1={y(t)} y2={y(t)} stroke={ink.grid} strokeWidth={1} />
-            <text x={-10} y={y(t)} textAnchor="end" dominantBaseline="middle" fontSize={12} fill={ink.muted}>
-              {usd(t)}
+    <div ref={ref}>
+      <svg width={width} height={height} viewBox={`0 0 ${width} ${height}`} role="img" aria-label="Duración vs costo total aproximado">
+        <g transform={`translate(${margin.left},${margin.top})`}>
+          {yTicks.map((t) => (
+            <g key={t}>
+              <line x1={0} x2={innerW} y1={y(t)} y2={y(t)} stroke={ink.grid} strokeWidth={1} />
+              <text x={-8} y={y(t)} textAnchor="end" dominantBaseline="middle" fontSize={tickFontSize} fill={ink.muted}>
+                {usd(t)}
+              </text>
+            </g>
+          ))}
+          {xTicks.map((t) => (
+            <text key={t} x={x(t)} y={innerH + (compact ? 20 : 24)} textAnchor="middle" fontSize={tickFontSize} fill={ink.muted}>
+              {t}
             </text>
-          </g>
-        ))}
-        {xTicks.map((t) => (
-          <text key={t} x={x(t)} y={innerH + 24} textAnchor="middle" fontSize={12} fill={ink.muted}>
-            {t}
+          ))}
+          <line x1={0} x2={innerW} y1={innerH} y2={innerH} stroke={ink.baseline} strokeWidth={1} />
+          <text x={innerW / 2} y={innerH + (compact ? 34 : 40)} textAnchor="middle" fontSize={compact ? 11 : 13} fill={ink.secondary}>
+            Duración (años)
           </text>
-        ))}
-        <line x1={0} x2={innerW} y1={innerH} y2={innerH} stroke={ink.baseline} strokeWidth={1} />
-        <text x={innerW / 2} y={innerH + 40} textAnchor="middle" fontSize={13} fill={ink.secondary}>
-          Duración (años)
-        </text>
-        {rows.map((d) => {
-          const isHovered = hovered === d.id;
-          return (
-            <circle
-              key={d.id}
-              cx={x(d.duracionAnios ?? 0)}
-              cy={y(d.costUsd ?? 0)}
-              r={isHovered ? 9 : 7}
-              fill={paisColor[d.pais] ?? ink.muted}
-              fillOpacity={hovered && !isHovered ? 0.35 : 0.85}
-              stroke={ink.surface}
-              strokeWidth={2}
-              onMouseEnter={() => setHovered(d.id)}
-              onMouseLeave={() => setHovered(null)}
-            >
-              <title>{`${d.universidad}\n${d.duracionAnios} años · ${usd(d.costUsd ?? 0)} USD aprox. · ${d.pais}`}</title>
-            </circle>
-          );
-        })}
-      </g>
-    </svg>
+          {rows.map((d) => {
+            const isHovered = hovered === d.id;
+            return (
+              <circle
+                key={d.id}
+                cx={x(d.duracionAnios ?? 0)}
+                cy={y(d.costUsd ?? 0)}
+                r={isHovered ? 9 : compact ? 6 : 7}
+                fill={paisColor[d.pais] ?? ink.muted}
+                fillOpacity={hovered && !isHovered ? 0.35 : 0.85}
+                stroke={ink.surface}
+                strokeWidth={2}
+                onMouseEnter={() => setHovered(d.id)}
+                onMouseLeave={() => setHovered(null)}
+              >
+                <title>{`${d.universidad}\n${d.duracionAnios} años · ${usd(d.costUsd ?? 0)} USD aprox. · ${d.pais}`}</title>
+              </circle>
+            );
+          })}
+        </g>
+      </svg>
     </div>
   );
 }
