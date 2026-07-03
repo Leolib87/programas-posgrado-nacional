@@ -1,0 +1,36 @@
+---
+import Layout from '../layouts/Layout.astro';
+import DashboardInternacional from '../components/internacional/DashboardInternacional.tsx';
+import ThemeToggle from '../components/ThemeToggle.tsx';
+import programas from '../data/doctorados-educacion-internacional.json';
+---
+
+<Layout
+  title="Doctorados en Educación Online — Internacional | Programas de Posgrado Nacional"
+  description="Doctorados en Educación 100% online o mayoritariamente online en España, Reino Unido y Estados Unidos."
+>
+  <header class="border-b border-[var(--border-color)] bg-[var(--surface)]">
+    <div class="max-w-[1800px] mx-auto px-6 sm:px-10 py-10 flex items-start justify-between gap-6">
+      <div>
+        <p class="text-sm font-semibold text-brand-600 uppercase tracking-wide mb-2">Programas de Posgrado Nacional · Internacional</p>
+        <h1 class="text-3xl sm:text-5xl font-bold text-[var(--text-primary)]">Doctorados en Educación Online</h1>
+        <p class="text-[var(--text-secondary)] text-lg mt-3 max-w-3xl">
+          Programas de Doctorado en Educación 100% online o mayoritariamente online, fuera de Chile: España, Reino
+          Unido y Estados Unidos. Los costos se muestran en la moneda original de cada país; el filtro usa una
+          conversión aproximada a USD solo para comparar.
+        </p>
+      </div>
+      <ThemeToggle client:load />
+    </div>
+  </header>
+
+  <main class="max-w-[1800px] mx-auto px-6 sm:px-10 py-10">
+    <DashboardInternacional programas={programas} client:load />
+  </main>
+
+  <footer class="max-w-[1800px] mx-auto px-6 sm:px-10 py-10 text-sm text-[var(--text-muted)] border-t border-[var(--border-color)] mt-8">
+    Datos recopilados desde las webs oficiales de cada universidad. Los costos y la acreditación cambian con el
+    tiempo: verifica siempre en el sitio oficial del programa antes de postular. Este listado es independiente del
+    dataset de Doctorados en Educación de Chile.
+  </footer>
+</Layout>
