@@ -13,13 +13,6 @@ export default function BarChartArancel({ data }: { data: ProgramaDoctorado[] })
   const [hovered, setHovered] = useState<string | null>(null);
   const { ref, width } = useElementWidth<HTMLDivElement>(680);
   const compact = width < 480;
-  const rowHeight = compact ? 30 : 34;
-  const margin = compact
-    ? { top: 8, right: 44, bottom: 8, left: 128 }
-    : { top: 8, right: 64, bottom: 8, left: 260 };
-  const labelMax = compact ? 16 : 34;
-  const labelFontSize = compact ? 11 : 14;
-  const valueFontSize = compact ? 10 : 13;
 
   const rows = useMemo(
     () =>
@@ -29,33 +22,84 @@ export default function BarChartArancel({ data }: { data: ProgramaDoctorado[] })
     [data],
   );
 
-  const height = rows.length * rowHeight + margin.top + margin.bottom;
-  const innerWidth = Math.max(width - margin.left - margin.right, 40);
-
-  const x = useMemo(
-    () =>
-      d3
-        .scaleLinear()
-        .domain([0, d3.max(rows, (d) => d.arancelAnual ?? 0) ?? 1])
-        .nice()
-        .range([0, innerWidth]),
-    [rows, innerWidth],
-  );
-
-  const colorScale = useMemo(
-    () =>
-      d3
-        .scaleQuantize<string>()
-        .domain([0, d3.max(rows, (d) => d.arancelAnual ?? 0) ?? 1])
-        .range(sequentialBlue),
-    [rows, sequentialBlue],
-  );
-
   if (rows.length === 0) {
     return <p className="text-base text-[var(--text-muted)]">No hay programas con arancel informado en el filtro actual.</p>;
   }
 
-  const ticks = x.ticks(compact ? 3 : 4);
+  const maxArancel = d3.max(rows, (d) => d.arancelAnual ?? 0) ?? 1;
+
+  const colorScale = useMemo(
+    () => d3.scaleQuantize<string>().domain([0, maxArancel]).range(sequentialBlue),
+    [maxArancel, sequentialBlue],
+  );
+
+  if (compact) {
+    // Móvil: nombre de la universidad arriba, barra abajo — usa todo el ancho disponible
+    // en vez de comprimir la etiqueta en un margen izquierdo angosto.
+    const rowHeight = 56;
+    const margin = { top: 4, right: 8, bottom: 4, left: 8 };
+    const barHeight = 16;
+    const innerWidth = Math.max(width - margin.left - margin.right, 40);
+    const height = rows.length * rowHeight + margin.top + margin.bottom;
+    const x = d3.scaleLinear().domain([0, maxArancel]).nice().range([0, innerWidth]);
+
+    return (
+      <div ref={ref}>
+        <svg width={width} height={height} viewBox={`0 0 ${width} ${height}`} role="img" aria-label="Arancel anual por universidad">
+          <g transform={`translate(${margin.left},${margin.top})`}>
+            {rows.map((d, i) => {
+              const w = x(d.arancelAnual ?? 0);
+              const isHovered = hovered === d.id;
+              const labelY = i * rowHeight + 14;
+              const barY = i * rowHeight + 26;
+              return (
+                <g key={d.id} onMouseEnter={() => setHovered(d.id)} onMouseLeave={() => setHovered(null)}>
+                  <text
+                    x={0}
+                    y={labelY}
+                    fontSize={13}
+                    fill={isHovered ? ink.primary : ink.secondary}
+                    fontWeight={isHovered ? 600 : 500}
+                  >
+                    {d.universidad.length > 44 ? d.universidad.slice(0, 42) + '…' : d.universidad}
+                  </text>
+                  <rect
+                    x={0}
+                    y={barY}
+                    width={Math.max(w, 2)}
+                    height={barHeight}
+                    rx={4}
+                    fill={colorScale(d.arancelAnual ?? 0)}
+                    opacity={isHovered ? 1 : 0.85}
+                  >
+                    <title>{`${d.universidad}: ${clp(d.arancelAnual ?? 0)}/año`}</title>
+                  </rect>
+                  <text
+                    x={w + 8}
+                    y={barY + barHeight / 2}
+                    dominantBaseline="middle"
+                    fontSize={12}
+                    fontWeight={600}
+                    fill={ink.primary}
+                    className="tabular-nums"
+                  >
+                    {clp(d.arancelAnual ?? 0)}
+                  </text>
+                </g>
+              );
+            })}
+          </g>
+        </svg>
+      </div>
+    );
+  }
+
+  const rowHeight = 34;
+  const margin = { top: 8, right: 64, bottom: 8, left: 260 };
+  const innerWidth = Math.max(width - margin.left - margin.right, 40);
+  const height = rows.length * rowHeight + margin.top + margin.bottom;
+  const x = d3.scaleLinear().domain([0, maxArancel]).nice().range([0, innerWidth]);
+  const ticks = x.ticks(4);
 
   return (
     <div ref={ref}>
@@ -79,11 +123,11 @@ export default function BarChartArancel({ data }: { data: ProgramaDoctorado[] })
                   y={rowHeight / 2}
                   textAnchor="end"
                   dominantBaseline="middle"
-                  fontSize={labelFontSize}
+                  fontSize={14}
                   fill={isHovered ? ink.primary : ink.secondary}
                   fontWeight={isHovered ? 600 : 400}
                 >
-                  {d.universidad.length > labelMax ? d.universidad.slice(0, labelMax - 2) + '…' : d.universidad}
+                  {d.universidad.length > 34 ? d.universidad.slice(0, 32) + '…' : d.universidad}
                 </text>
                 <rect
                   x={0}
@@ -96,7 +140,7 @@ export default function BarChartArancel({ data }: { data: ProgramaDoctorado[] })
                 >
                   <title>{`${d.universidad}: ${clp(d.arancelAnual ?? 0)}/año`}</title>
                 </rect>
-                <text x={w + 8} y={rowHeight / 2} dominantBaseline="middle" fontSize={valueFontSize} fill={ink.secondary} className="tabular-nums">
+                <text x={w + 8} y={rowHeight / 2} dominantBaseline="middle" fontSize={13} fill={ink.secondary} className="tabular-nums">
                   {clp(d.arancelAnual ?? 0)}
                 </text>
               </g>

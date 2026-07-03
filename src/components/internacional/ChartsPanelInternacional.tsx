@@ -16,13 +16,6 @@ function CostBarChart({ data }: { data: ProgramaInternacional[] }) {
   const [hovered, setHovered] = useState<string | null>(null);
   const { ref, width } = useElementWidth<HTMLDivElement>(680);
   const compact = width < 480;
-  const rowHeight = compact ? 30 : 34;
-  const margin = compact
-    ? { top: 8, right: 44, bottom: 8, left: 128 }
-    : { top: 8, right: 64, bottom: 8, left: 280 };
-  const labelMax = compact ? 16 : 38;
-  const labelFontSize = compact ? 11 : 14;
-  const valueFontSize = compact ? 10 : 13;
 
   const rows = useMemo(() => {
     return data
@@ -31,23 +24,60 @@ function CostBarChart({ data }: { data: ProgramaInternacional[] }) {
       .sort((a, b) => (b.costUsd ?? 0) - (a.costUsd ?? 0));
   }, [data]);
 
-  const innerWidth = Math.max(width - margin.left - margin.right, 40);
-  const height = rows.length * rowHeight + margin.top + margin.bottom;
-
-  const x = useMemo(
-    () => d3.scaleLinear().domain([0, d3.max(rows, (d) => d.costUsd ?? 0) ?? 1]).nice().range([0, innerWidth]),
-    [rows, innerWidth],
-  );
-  const colorScale = useMemo(
-    () => d3.scaleQuantize<string>().domain([0, d3.max(rows, (d) => d.costUsd ?? 0) ?? 1]).range(sequentialBlue),
-    [rows, sequentialBlue],
-  );
-
   if (rows.length === 0) {
     return <p className="text-base text-[var(--text-muted)]">No hay programas con costo informado en el filtro actual.</p>;
   }
 
-  const ticks = x.ticks(compact ? 3 : 4);
+  const maxCost = d3.max(rows, (d) => d.costUsd ?? 0) ?? 1;
+  const colorScale = useMemo(
+    () => d3.scaleQuantize<string>().domain([0, maxCost]).range(sequentialBlue),
+    [maxCost, sequentialBlue],
+  );
+
+  if (compact) {
+    // Móvil: nombre de la universidad arriba, barra abajo — usa todo el ancho disponible.
+    const rowHeight = 56;
+    const margin = { top: 4, right: 8, bottom: 4, left: 8 };
+    const barHeight = 16;
+    const innerWidth = Math.max(width - margin.left - margin.right, 40);
+    const height = rows.length * rowHeight + margin.top + margin.bottom;
+    const x = d3.scaleLinear().domain([0, maxCost]).nice().range([0, innerWidth]);
+
+    return (
+      <div ref={ref}>
+        <svg width={width} height={height} viewBox={`0 0 ${width} ${height}`} role="img" aria-label="Costo total aproximado por universidad">
+          <g transform={`translate(${margin.left},${margin.top})`}>
+            {rows.map((d, i) => {
+              const w = x(d.costUsd ?? 0);
+              const isHovered = hovered === d.id;
+              const labelY = i * rowHeight + 14;
+              const barY = i * rowHeight + 26;
+              return (
+                <g key={d.id} onMouseEnter={() => setHovered(d.id)} onMouseLeave={() => setHovered(null)}>
+                  <text x={0} y={labelY} fontSize={13} fill={isHovered ? ink.primary : ink.secondary} fontWeight={isHovered ? 600 : 500}>
+                    {d.universidad.length > 44 ? d.universidad.slice(0, 42) + '…' : d.universidad}
+                  </text>
+                  <rect x={0} y={barY} width={Math.max(w, 2)} height={barHeight} rx={4} fill={colorScale(d.costUsd ?? 0)} opacity={isHovered ? 1 : 0.85}>
+                    <title>{`${d.universidad}: ${usd(d.costUsd ?? 0)} USD aprox.`}</title>
+                  </rect>
+                  <text x={w + 8} y={barY + barHeight / 2} dominantBaseline="middle" fontSize={12} fontWeight={600} fill={ink.primary} className="tabular-nums">
+                    {usd(d.costUsd ?? 0)}
+                  </text>
+                </g>
+              );
+            })}
+          </g>
+        </svg>
+      </div>
+    );
+  }
+
+  const rowHeight = 34;
+  const margin = { top: 8, right: 64, bottom: 8, left: 280 };
+  const innerWidth = Math.max(width - margin.left - margin.right, 40);
+  const height = rows.length * rowHeight + margin.top + margin.bottom;
+  const x = d3.scaleLinear().domain([0, maxCost]).nice().range([0, innerWidth]);
+  const ticks = x.ticks(4);
 
   return (
     <div ref={ref}>
@@ -61,13 +91,13 @@ function CostBarChart({ data }: { data: ProgramaInternacional[] }) {
             const isHovered = hovered === d.id;
             return (
               <g key={d.id} transform={`translate(0,${i * rowHeight})`} onMouseEnter={() => setHovered(d.id)} onMouseLeave={() => setHovered(null)}>
-                <text x={-10} y={rowHeight / 2} textAnchor="end" dominantBaseline="middle" fontSize={labelFontSize} fill={isHovered ? ink.primary : ink.secondary} fontWeight={isHovered ? 600 : 400}>
-                  {d.universidad.length > labelMax ? d.universidad.slice(0, labelMax - 2) + '…' : d.universidad}
+                <text x={-10} y={rowHeight / 2} textAnchor="end" dominantBaseline="middle" fontSize={14} fill={isHovered ? ink.primary : ink.secondary} fontWeight={isHovered ? 600 : 400}>
+                  {d.universidad.length > 38 ? d.universidad.slice(0, 36) + '…' : d.universidad}
                 </text>
                 <rect x={0} y={(rowHeight - 18) / 2} width={Math.max(w, 2)} height={18} rx={4} fill={colorScale(d.costUsd ?? 0)} opacity={isHovered ? 1 : 0.85}>
                   <title>{`${d.universidad}: ${usd(d.costUsd ?? 0)} USD aprox.`}</title>
                 </rect>
-                <text x={w + 8} y={rowHeight / 2} dominantBaseline="middle" fontSize={valueFontSize} fill={ink.secondary} className="tabular-nums">
+                <text x={w + 8} y={rowHeight / 2} dominantBaseline="middle" fontSize={13} fill={ink.secondary} className="tabular-nums">
                   {usd(d.costUsd ?? 0)}
                 </text>
               </g>
